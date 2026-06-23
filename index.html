@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HarmonyManage - Music Academy Administration System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind Config for Custom Colors approximating the blue-grey brick image -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        petrol: {
+                            50: '#f4f7f9',
+                            100: '#e9eff2',
+                            200: '#c7d9e1',
+                            300: '#a5c2d1',
+                            400: '#6396af',
+                            500: '#3B7A99', /* Main theme color from brick */
+                            600: '#356e8a',
+                            700: '#2c5c73',
+                            800: '#244a5c',
+                            900: '#1d3c4b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden text-slate-800">
+
+    <!-- App Container -->
+    <div class="flex min-h-screen">
+        
+        <!-- SIDEBAR - Desktop -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 flex-col justify-between hidden w-64 transition-transform duration-300 ease-in-out border-r bg-slate-900 border-slate-800 lg:flex">
+            <div>
+                <!-- Brand logo -->
+                <div class="flex items-center gap-3 px-6 py-5 border-b border-slate-800">
+                    <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-petrol-500 to-cyan-400 text-white shadow-lg shadow-petrol-500/20">
+                        <i class="text-xl bi bi-music-note-beamed"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-white text-md tracking-wide">HarmonyManage</h1>
+                        <span class="text-xs text-petrol-300">Academy Hub</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="px-4 py-6 space-y-1">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex items-center w-full gap-3 px-4 py-3 text-sm font-medium transition-all rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white group">
+                        <i class="text-lg bi bi-grid-1x2-fill group-hover:text-petrol-400"></i>
+                        <span>Dashboard</span>
+                    </button>
+                    <button onclick="switchTab('students')" id="nav-students" class="flex items-center w-full gap-3 px-4 py-3 text-sm font-medium transition-all rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white group">
+                        <i class="text-lg bi bi-people-fill group-hover:text-petrol-400"></i>
+                        <span>Students</span>
+                    </button>
+                    <button onclick="switchTab('fees')" id="nav-fees" class="flex items-center w-full gap-3 px-4 py-3 text-sm font-medium transition-all rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white group">
+                        <i class="text-lg bi bi-credit-card-fill group-hover:text-petrol-400"></i>
+                        <span>Fees & Payments</span>
+                    </button>
+                    <button onclick="switchTab('attendance')" id="nav-attendance" class="flex items-center w-full gap-3 px-4 py-3 text-sm font-medium transition-all rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white group">
+                        <i class="text-lg bi bi-calendar-check-fill group-hover:text-petrol-400"></i>
+                        <span>Attendance & Progress</span>
+                    </button>
+                    <button onclick="switchTab('teachers')" id="nav-teachers" class="flex items-center w-full gap-3 px-4 py-3 text-sm font-medium transition-all rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white group">
+                        <i class="text-lg bi bi-person-badge-fill group-hover:text-petrol-400"></i>
+                        <span>Teachers & Classes</span>
+                    </button>
+                    <button onclick="switchTab('reports')" id="nav-reports" class="flex items-center w-full gap-3 px-4 py-3 text-sm font-medium transition-all rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white group">
+                        <i class="text-lg bi bi-graph-up-arrow group-hover:text-petrol-400"></i>
+                        <span>Financial Reports</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- User bottom profile info -->
+            <div class="p-4 border-t border-slate-800">
+                <div class="flex items-center gap-3 p-2 rounded-lg bg-slate-800/40">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&auto=format&fit=crop" class="object-cover w-9 h-9 rounded-full" alt="User Profile">
+                    <div class="overflow-hidden">
+                        <p class="text-xs font-semibold text-slate-200 truncate">Eleanor Vance</p>
+                        <p class="text-[10px] text-slate-400 truncate">Executive Admin</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN LAYOUT AREA -->
+        <main class="flex-1 min-w-0 pb-16 lg:pl-64">
+            
+            <!-- HEADER -->
+            <header class="sticky top-0 z-40 flex items-center justify-between px-4 py-4 border-b bg-white/80 backdrop-blur-md border-slate-200 md:px-8">
+                <!-- Left: Title / Mobile trigger -->
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleMobileSidebar()" class="p-2 transition rounded-lg lg:hidden hover:bg-slate-100">
+                        <i class="text-xl bi bi-list"></i>
+                    </button>
+                    <div>
+                        <h2 id="page-title" class="text-xl font-bold text-slate-800">Dashboard</h2>
+                        <p class="hidden text-xs text-slate-500 sm:block">Harmony Music Academy Management Suite</p>
+                    </div>
+                </div>
+
+                <!-- Right: Active Role / Multi-branch selector -->
+                <div class="flex items-center gap-2 md:gap-4">
+                    <!-- Branch Selection -->
+                    <div class="relative">
+                        <select id="branch-select" onchange="switchBranch()" class="pl-8 pr-3 py-1.5 text-xs font-semibold border rounded-full bg-slate-50 border-slate-200 text-slate-600 focus:outline-none focus:ring-2 focus:ring-petrol-500">
+                            <option value="all">🌐 All Branches</option>
+                            <option value="downtown" selected>📍 Downtown Campus</option>
+                            <option value="westend">📍 West End Arts</option>
+                            <option value="northside">📍 Northside Academy</option>
+                        </select>
+                        <i class="absolute top-2.5 left-3 text-[11px] text-slate-400 bi bi-geo-alt"></i>
+                    </div>
+
+                    <!-- Role Switcher Simulation -->
+                    <select id="role-select" onchange="switchRole()" class="px-2.5 py-1.5 text-xs font-semibold border rounded-full bg-petrol-50 border-petrol-200 text-petrol-700 focus:outline-none focus:ring-2 focus:ring-petrol-500">
+                        <option value="Admin">🔑 Admin View</option>
+                        <option value="Teacher">🎻 Teacher View</option>
+                        <option value="Accountant">💵 Accountant</option>
+                        <option value="Parent">🏠 Parent View</option>
+                    </select>
+
+                    <!-- Add Quick-Action Button -->
+                    <button onclick="openModal('addStudentModal')" class="flex items-center justify-center w-8 h-8 rounded-full bg-petrol-500 text-white hover:bg-petrol-600 sm:w-auto sm:px-3 sm:py-1.5 sm:text-xs sm:rounded-lg sm:font-semibold">
+                        <i class="bi bi-plus"></i> <span class="hidden sm:inline ml-1">New Student</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- VIEWPORT CONTENT CONTAINER -->
+            <div class="p-4 md:p-8">
+
+                <!-- TAB: DASHBOARD -->
+                <section id="view-dashboard" class="space-y-6">
+                    <!-- Metrics Cards Grid -->
+                    <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+                        <div class="p-5 border bg-white rounded-2xl border-slate-100 hover:shadow-md transition duration-200">
+                            <div class="flex justify-between items-start">
+                                <span class="text-xs font-semibold text-slate-400 uppercase">Total Students</span>
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-700">+12%</span>
+                            </div>
+                            <h3 id="stat-total-students" class="mt-2 text-2xl font-bold text-slate-800">--</h3>
+                            <p class="mt-1 text-xs text-slate-400">Active class registries</p>
+                        </div>
+                        <div class="p-5 border bg-white rounded-2xl border-slate-100 hover:shadow-md transition duration-200">
+                            <div class="flex justify-between items-start">
+                                <span class="text-xs font-semibold text-slate-400 uppercase">Fees Collected</span>
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-cyan-50 text-cyan-700">This Month</span>
+                            </div>
+                            <h3 id="stat-fees-collected" class="mt-2 text-2xl font-bold text-slate-800">$--</h3>
+                            <p class="mt-1 text-xs text-slate-400">Successfully processed</p>
+                        </div>
+                        <div class="p-5 border bg-white rounded-2xl border-slate-100 hover:shadow-md transition duration-200">
+                            <div class="flex justify-between items-start">
+                                <span class="text-xs font-semibold text-slate-400 uppercase">Pending Dues</span>
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-rose-50 text-rose-700">Needs Action</span>
+                            </div>
+                            <h3 id="stat-pending-fees" class="mt-2 text-2xl font-bold text-rose-600">$--</h3>
+                            <p class="mt-1 text-xs text-slate-400">Across all fee schedules</p>
+                        </div>
+                        <div class="p-5 border bg-white rounded-2xl border-slate-100 hover:shadow-md transition duration-200">
+                            <div class="flex justify-between items-start">
+                                <span class="text-xs font-semibold text-slate-400 uppercase">Monthly Revenue</span>
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-700">Projected</span>
+                            </div>
+                            <h3 id="stat-monthly-revenue" class="mt-2 text-2xl font-bold text-slate-800">$--</h3>
+                            <p class="mt-1 text-xs text-slate-400">Guitar & Piano dominant</p>
+                        </div>
+                    </div>
+
+                    <!-- Chart & Activity Grid -->
+                    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                        <!-- Revenue & Collections Chart -->
+                        <div class="p-5 border bg-white rounded-2xl border-slate-150 lg:col-span-2">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h4 class="font-bold text-slate-800">Revenue Analytics</h4>
+                                    <p class="text-xs text-slate-400">Class Collections vs Outstanding Dues</p>
+                                </div>
+                                <select class="px-2.5 py-1 text-xs border rounded bg-slate-50 border-slate-200">
+                                    <option>Last 6 Months</option>
+                                    <option>Last Year</option>
+                                </select>
+                            </div>
+                            <!-- Canvas element for Chart.js -->
+                            <div class="relative h-72">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Mini Sidebar: Upcoming Fee Due Dates -->
+                        <div class="p-5 border bg-white rounded-2xl border-slate-150 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="font-bold text-slate-800">Critical Upcoming Dues</h4>
+                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-100 text-red-700">Urgent</span>
+                                </div>
+                                <div id="upcoming-dues-list" class="space-y-3 max-h-[290px] overflow-y-auto pr-1">
+                                    <!-- Dynamic elements from JS -->
+                                </div>
+                            </div>
+                            <button onclick="switchTab('fees')" class="w-full mt-4 py-2 text-xs font-semibold text-center border rounded-lg bg-slate-50 border-slate-200 hover:bg-slate-100 hover:text-slate-900 transition text-slate-600">
+                                Manage Dues Directory <i class="ml-1 bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Course Distribution & Activity Track -->
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <!-- Instrument Courses Breakdown -->
+                        <div class="p-5 border bg-white rounded-2xl border-slate-150">
+                            <h4 class="mb-4 font-bold text-slate-800">Course Allocation & Revenue</h4>
+                            <div id="course-distribution" class="space-y-4">
+                                <!-- Dynamic breakdown loaded from JS -->
+                            </div>
+                        </div>
+
+                        <!-- Real-time Event Feed / Notifications -->
+                        <div class="p-5 border bg-white rounded-2xl border-slate-150">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="font-bold text-slate-800">Real-Time Action Log</h4>
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            </div>
+                            <div id="action-feed-list" class="space-y-3 max-h-72 overflow-y-auto">
+                                <!-- Hardcoded simulated events with clean styled timeline indicators -->
+                                <div class="flex gap-3 text-xs">
+                                    <div class="flex flex-col items-center">
+                                        <div class="flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 text-blue-600"><i class="bi bi-wallet2"></i></div>
+                                        <div class="w-0.5 h-full bg-slate-100"></div>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-slate-700">Fee recorded for Liam Carter</p>
+                                        <p class="text-slate-400">Piano Class - $120.00 via Stripe Stripe/Online</p>
+                                        <span class="text-[10px] text-slate-400 font-medium">Just now</span>
+                                    </div>
+                                </div>
+                                <div class="flex gap-3 text-xs">
+                                    <div class="flex flex-col items-center">
+                                        <div class="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-50 text-emerald-600"><i class="bi bi-person-plus-fill"></i></div>
+                                        <div class="w-0.5 h-full bg-slate-100"></div>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-slate-700">New Registration: Maya Angelou</p>
+                                        <p class="text-slate-400">Vocal Training, assigned to Sarah Jenkins</p>
+                                        <span class="text-[10px] text-slate-400 font-medium">2 hours ago</span>
+                                    </div>
+                                </div>
+                                <div class="flex gap-3 text-xs">
+                                    <div class="flex flex-col items-center">
+                                        <div class="flex items-center justify-center w-6 h-6 rounded-full bg-amber-50 text-amber-600"><i class="bi bi-bell-fill"></i></div>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-slate-700">Automated SMS Reminder Sent</p>
+                                        <p class="text-slate-400">To 4 parents with dues over 15 days outstanding</p>
+                                        <span class="text-[10px] text-slate-400 font-medium">1 day ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: STUDENTS -->
+                <section id="view-students" class="hidden space-y-6">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <!-- Filters & Search -->
+                        <div class="flex flex-wrap items-center gap-2 flex-grow">
+                            <div class="relative w-full max-w-xs">
+                                <input id="student-search-input" onkeyup="filterStudents()" type="text" placeholder="Search name, phone, parent..." class="w-full pl-9 pr-4 py-2 text-sm border rounded-xl bg-white border-slate-200 focus:outline-none focus:ring-2 focus:ring-petrol-500">
+                                <i class="absolute top-2.5 left-3.5 text-slate-400 bi bi-search"></i>
+                            </div>
+                            <select id="student-filter-instrument" onchange="filterStudents()" class="px-3 py-2 text-xs border rounded-xl bg-white border-slate-200">
+                                <option value="all">All Instruments</option>
+                                <option value="Guitar">Guitar</option>
+                                <option value="Piano">Piano</option>
+                                <option value="Vocal">Vocal</option>
+                                <option value="Drums">Drums</option>
+                                <option value="Violin">Violin</option>
+                            </select>
+                            <select id="student-filter-status" onchange="filterStudents()" class="px-3 py-2 text-xs border rounded-xl bg-white border-slate-200">
+                                <option value="all">All Fee Status</option>
+                                <option value="Paid">Fully Paid</option>
+                                <option value="Pending">Pending Dues</option>
+                            </select>
+                        </div>
+                        <button onclick="openModal('addStudentModal')" class="flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-xl bg-petrol-500 hover:bg-petrol-600 transition">
+                            <i class="bi bi-person-plus"></i> Register Student
+                        </button>
+                    </div>
+
+                    <!-- Students Directory Table Card -->
+                    <div class="overflow-hidden border bg-white rounded-2xl border-slate-150">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b bg-slate-50/50 border-slate-100">
+                                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Student Info</th>
+                                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Class & Instrument</th>
+                                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Batch details</th>
+                                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Joining Date</th>
+                                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Fee Status</th>
+                                        <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="students-table-body" class="divide-y divide-slate-100">
+                                    <!-- Dynamic from state -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: FEES & PAYMENTS -->
+                <section id="view-fees" class="hidden space-y-6">
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-4">
+                        <!-- Left sidebar inside view for Plan management & quick tools -->
+                        <div class="space-y-6 md:col-span-1">
+                            <div class="p-4 border bg-white rounded-2xl border-slate-150">
+                                <h4 class="font-bold text-slate-800 mb-3 text-sm">Fee Pricing Models</h4>
+                                <div class="space-y-2">
+                                    <div class="p-3 border rounded-xl border-slate-100 bg-slate-50 text-xs">
+                                        <div class="flex justify-between items-center font-bold text-slate-700">
+                                            <span>Monthly Standard</span>
+                                            <span>$60 / mo</span>
+                                        </div>
+                                        <p class="text-slate-400 mt-1">1 lesson per week, auto due 5th of each month</p>
+                                    </div>
+                                    <div class="p-3 border rounded-xl border-slate-100 bg-slate-50 text-xs">
+                                        <div class="flex justify-between items-center font-bold text-slate-700">
+                                            <span>Quarterly Premium</span>
+                                            <span>$160 / term</span>
+                                        </div>
+                                        <p class="text-slate-400 mt-1">Saves $20, include 1 free masterclass</p>
+                                    </div>
+                                    <div class="p-3 border rounded-xl border-slate-100 bg-slate-50 text-xs">
+                                        <div class="flex justify-between items-center font-bold text-slate-700">
+                                            <span>Yearly Platinum</span>
+                                            <span>$600 / yr</span>
+                                        </div>
+                                        <p class="text-slate-400 mt-1">Best deal, customized progress tracking</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Trigger reminder template summary card -->
+                            <div class="p-4 border bg-white rounded-2xl border-slate-150 bg-gradient-to-br from-petrol-50 to-cyan-50">
+                                <h4 class="font-bold text-petrol-900 mb-1 text-sm">Late Fee Settings</h4>
+                                <p class="text-slate-500 text-xs mb-3">Active rule: $10.00 penalty applied after 10 days overdue.</p>
+                                <div class="flex gap-2">
+                                    <button onclick="alert('Late fee triggers computed & applied to overdue students!')" class="w-full py-1.5 text-[11px] font-bold text-center rounded-lg bg-petrol-600 text-white hover:bg-petrol-700 transition">Run Auto Late Fee Calculation</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Main Ledger & Payments Log -->
+                        <div class="md:col-span-3 space-y-4">
+                            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                <h3 class="font-bold text-slate-800">Dues Directory & Reminders</h3>
+                                <div class="flex flex-wrap gap-2">
+                                    <button onclick="openModal('quickPaymentModal')" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white rounded-lg bg-emerald-600 hover:bg-emerald-700 transition">
+                                        <i class="bi bi-cash-coin"></i> Record Payment
+                                    </button>
+                                    <button onclick="triggerAllReminders()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-petrol-700 border border-petrol-200 bg-petrol-50 rounded-lg hover:bg-petrol-100 transition">
+                                        <i class="bi bi-chat-dots"></i> BroadCast All Due WhatsApps
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Table detailing Fee statuses -->
+                            <div class="overflow-hidden border bg-white rounded-2xl border-slate-150">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr class="border-b bg-slate-50/50 border-slate-100">
+                                                <th class="px-5 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Student Name</th>
+                                                <th class="px-5 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Assigned Plan</th>
+                                                <th class="px-5 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Pending Amt</th>
+                                                <th class="px-5 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Late Fee App.</th>
+                                                <th class="px-5 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Due Date</th>
+                                                <th class="px-5 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 text-right font-semibold">Option / Quick receipt</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="fees-ledger-body" class="divide-y divide-slate-100 text-xs">
+                                            <!-- Dynamics loaded from JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: ATTENDANCE & PROGRESS -->
+                <section id="view-attendance" class="hidden space-y-6">
+                    <div class="p-6 border bg-white rounded-2xl border-slate-150 space-y-4">
+                        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-slate-100">
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-lg">Class Register & Progress logger</h3>
+                                <p class="text-xs text-slate-400">Select date and batch below to track student entry</p>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <input type="date" id="attendance-date" value="" class="px-3 py-1.5 text-xs border rounded-xl bg-white border-slate-200">
+                                <select id="attendance-batch-select" onchange="renderAttendanceTracker()" class="px-3 py-1.5 text-xs border rounded-xl bg-white border-slate-200">
+                                    <option value="Monday Evening Batch">Monday Evening Batch</option>
+                                    <option value="Saturday Morning Batch">Saturday Morning Batch</option>
+                                    <option value="Wednesday Noon Batch">Wednesday Noon Batch</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Selector Buttons -->
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-500 font-medium">Bulk marking controls:</span>
+                            <div class="flex gap-2">
+                                <button onclick="markAllAttendance(true)" class="px-3 py-1 bg-emerald-50 text-emerald-700 rounded border border-emerald-200 font-semibold">Mark All Present</button>
+                                <button onclick="markAllAttendance(false)" class="px-3 py-1 bg-rose-50 text-rose-700 rounded border border-rose-200 font-semibold">Mark All Absent</button>
+                            </div>
+                        </div>
+
+                        <!-- Attendance / Performance Table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b bg-slate-50/50 border-slate-100">
+                                        <th class="px-5 py-3 text-xs font-bold uppercase tracking-wider text-slate-400 w-1/3">Student</th>
+                                        <th class="px-5 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Attended Class?</th>
+                                        <th class="px-5 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Performance Rating</th>
+                                        <th class="px-5 py-3 text-xs font-bold uppercase tracking-wider text-slate-400 w-1/3">Class Work / Lesson Progress Note</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendance-table-body" class="divide-y divide-slate-100">
+                                    <!-- Dynamic rows loaded via select batch matching -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Save Trigger -->
+                        <div class="flex justify-end pt-4">
+                            <button onclick="saveAttendanceData()" class="px-4 py-2 text-xs font-semibold bg-petrol-500 hover:bg-petrol-600 text-white rounded-lg transition shadow-md shadow-petrol-500/15">
+                                <i class="bi bi-shield-check"></i> Commit Attendance & Log Progress Notes
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: TEACHERS & CLASSES -->
+                <section id="view-teachers" class="hidden space-y-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">Instructors Allocation Directory</h3>
+                            <p class="text-xs text-slate-400">Instructors scheduling & instrument expert masteries</p>
+                        </div>
+                        <button onclick="alert('Option to register a new teacher dashboard link added!')" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-900 rounded-lg transition">
+                            <i class="bi bi-person-workspace"></i> Add Instructor
+                        </button>
+                    </div>
+
+                    <!-- Teacher info Cards -->
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3" id="teachers-list-container">
+                        <!-- Dynamic load from JS loop -->
+                    </div>
+                </section>
+
+                <!-- TAB: FINANCIAL REPORTS -->
+                <section id="view-reports" class="hidden space-y-6">
+                    <!-- Cards with quick metrics -->
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                        <div class="p-5 border bg-white rounded-xl border-slate-100">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Total Receivables</p>
+                            <h4 id="report-active-receivables" class="text-xl font-extrabold mt-1 text-slate-700">--</h4>
+                        </div>
+                        <div class="p-5 border bg-white rounded-xl border-slate-100">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Dues Recovery Rate</p>
+                            <h4 class="text-xl font-extrabold mt-1 text-teal-600">89.4%</h4>
+                        </div>
+                        <div class="p-5 border bg-white rounded-xl border-slate-100">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Enrollment Growth Trend</p>
+                            <span class="inline-flex items-center mt-1 text-sm font-semibold text-emerald-600">
+                                <i class="bi bi-arrow-up mr-1"></i> +8.5% Net Monthly
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Course revenue split table and detailed report summaries -->
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <!-- Revenue split break item -->
+                        <div class="p-5 border bg-white rounded-2xl border-slate-150">
+                            <h4 class="font-bold text-slate-800 mb-3 text-sm">Outstanding Due Sheet</h4>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs border-collapse">
+                                    <thead>
+                                        <tr class="border-b border-slate-100 text-slate-400">
+                                            <th class="pb-2 font-bold uppercase">Student</th>
+                                            <th class="pb-2 font-bold uppercase">Contact</th>
+                                            <th class="pb-2 font-bold uppercase">Overdue Days</th>
+                                            <th class="pb-2 font-bold uppercase text-right">Sum Dues</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="report-outstanding-body" class="divide-y divide-slate-50">
+                                        <!-- Dynamic list of only pending students -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Course Performance Analysis -->
+                        <div class="p-5 border bg-white rounded-2xl border-slate-150">
+                            <h4 class="font-bold text-slate-800 mb-4 text-sm">Course Wise Performance & Occupancy</h4>
+                            <div class="space-y-4" id="report-course-occupancy">
+                                <!-- Loaded details from state metrics calculations -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- MOBILE BOTTOM NAVIGATION FOR QUICK ACCESS AND PHONE FRIENDLINESS -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around py-2 border-t bg-white border-slate-200 lg:hidden no-print">
+        <button onclick="switchTab('dashboard')" class="flex flex-col items-center text-slate-400 text-xs focus:text-petrol-600">
+            <i class="text-lg bi bi-grid-1x2-fill"></i>
+            <span class="text-[10px] mt-0.5">Home</span>
+        </button>
+        <button onclick="switchTab('students')" class="flex flex-col items-center text-slate-400 text-xs focus:text-petrol-600">
+            <i class="text-lg bi bi-people-fill"></i>
+            <span class="text-[10px] mt-0.5">Students</span>
+        </button>
+        <button onclick="switchTab('fees')" class="flex flex-col items-center text-slate-400 text-xs focus:text-petrol-600">
+            <i class="text-lg bi bi-credit-card-fill"></i>
+            <span class="text-[10px] mt-0.5">Fees</span>
+        </button>
+        <button onclick="switchTab('attendance')" class="flex flex-col items-center text-slate-400 text-xs focus:text-petrol-600">
+            <i class="text-lg bi bi-calendar-check-fill"></i>
+            <span class="text-[10px] mt-0.5">Track</span>
+        </button>
+    </nav>
+
+    <!-- MOBILE SIDEBAR DRAWER OVERLAY -->
+    <div id="mobile-sidebar-overlay" onclick="toggleMobileSidebar()" class="fixed inset-0 z-40 hidden bg-slate-900/40 backdrop-blur-sm lg:hidden"></div>
+
+    <!-- MOBILE SIDEBAR ELEMENT -->
+    <div id="mobile-sidebar" class="fixed inset-y-0 left-0 z-55 w-64 transition-transform duration-300 ease-in-out -translate-x-full bg-slate-900 lg:hidden">
+        <div class="flex items-center justify-between px-6 py-5 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-petrol-500 text-white">
+                    <i class="bi bi-music-note-beamed"></i>
+                </div>
+                <h1 class="font-bold text-white text-sm">HarmonyManage</h1>
+            </div>
+            <button onclick="toggleMobileSidebar()" class="text-slate-400 hover:text-white"><i class="text-xl bi bi-x"></i></button>
+        </div>
+        <nav class="px-4 py-6 space-y-2">
+            <button onclick="switchTab('dashboard'); toggleMobileSidebar()" class="flex items-center w-full gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white">
+                <i class="bi bi-grid-1x2-fill"></i> <span>Dashboard</span>
+            </button>
+            <button onclick="switchTab('students'); toggleMobileSidebar()" class="flex items-center w-full gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white">
+                <i class="bi bi-people-fill"></i> <span>Students</span>
+            </button>
+            <button onclick="switchTab('fees'); toggleMobileSidebar()" class="flex items-center w-full gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white">
+                <i class="bi bi-credit-card-fill"></i> <span>Fees & Payments</span>
+            </button>
+            <button onclick="switchTab('attendance'); toggleMobileSidebar()" class="flex items-center w-full gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white">
+                <i class="bi bi-calendar-check-fill"></i> <span>Attendance Tracker</span>
+            </button>
+            <button onclick="switchTab('teachers'); toggleMobileSidebar()" class="flex items-center w-full gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white">
+                <i class="bi bi-person-badge-fill"></i> <span>Teachers</span>
+            </button>
+            <button onclick="switchTab('reports'); toggleMobileSidebar()" class="flex items-center w-full gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white">
+                <i class="bi bi-graph-up-arrow"></i> <span>Reports</span>
+            </button>
+        </nav>
+    </div>
+
+
+    <!-- MODAL: REGISTER STUDENT -->
+    <div id="addStudentModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b bg-slate-50 border-slate-100">
+                <h3 class="font-bold text-slate-800 text-base">New Student Enrollment Form</h3>
+                <button onclick="closeModal('addStudentModal')" class="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200/50"><i class="text-xl bi bi-x"></i></button>
+            </div>
+            <!-- Modal body form -->
+            <form onsubmit="addStudent(event)" class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Student Name *</label>
+                        <input id="stud-name" type="text" placeholder="Liam Harrison" required class="w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-petrol-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Parent/Guardian Name</label>
+                        <input id="stud-parent" type="text" placeholder="Robert Harrison" class="w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-petrol-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Contact Phone *</label>
+                        <input id="stud-phone" type="tel" placeholder="+1 (555) 019-2834" required class="w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-petrol-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Joining Date *</label>
+                        <input id="stud-joining" type="date" required class="w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-petrol-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Select Instrument *</label>
+                        <select id="stud-instrument" required class="w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-petrol-500">
+                            <option value="Guitar">Guitar</option>
+                            <option value="Piano" selected>Piano</option>
+                            <option value="Keyboard">Keyboard</option>
+                            <option value="Drums">Drums</option>
+                            <option value="Vocal">Vocal</option>
+                            <option value="Violin">Violin</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Class Schedule Batch</label>
+                        <select id="stud-batch" class="w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-petrol-500">
+                            <option value="Monday Evening Batch">Monday Evening Batch (5:00 PM)</option>
+                            <option value="Saturday Morning Batch">Saturday Morning Batch (10:00 AM)</option>
+                            <option value="Wednesday Noon Batch">Wednesday Noon Batch (2:00 PM)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Assigned Instructor *</label>
+                        <select id="stud-teacher" required class="w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-petrol-500">
+                            <option value="Sarah Jenkins">Sarah Jenkins (Piano Master)</option>
+                            <option value="Marcus Finch">Marcus Finch (Guitar Wiz)</option>
+                            <option value="Emma Watson">Emma Watson (Vocal Coach)</option>
+                            <option value="Amara Okafor">Amara Okafor (Percussions/Drums)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Billing Plan *</label>
+                        <select id="stud-plan" onchange="autoLoadPlanPrice()" required class="w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-petrol-500">
+                            <option value="Monthly Standard" data-price="60" selected>Monthly Standard ($60)</option>
+                            <option value="Quarterly Premium" data-price="160">Quarterly Premium ($160)</option>
+                            <option value="Yearly Platinum" data-price="600">Yearly Platinum ($600)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Pre-payment Received Amount ($)</label>
+                    <input id="stud-initial-payment" type="number" min="0" value="60" class="w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-petrol-500">
+                    <p class="text-[10px] text-slate-400 mt-1">If set to less than plan price, outstanding dues will be dynamically computed.</p>
+                </div>
+
+                <!-- Footer buttons overlay -->
+                <div class="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('addStudentModal')" class="px-4 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-lg hover:bg-slate-200 transition">Discard</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-bold text-white bg-petrol-500 hover:bg-petrol-600 rounded-lg transition">Submit & Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- MODAL: QUICK RECORD PAYMENT -->
+    <div id="quickPaymentModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div class="relative w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div class="flex items-center justify-between px-6 py-4 border-b bg-slate-50">
+                <h3 class="font-bold text-slate-850 text-base">Record Fee Payment</h3>
+                <button onclick="closeModal('quickPaymentModal')" class="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-150"><i class="text-xl bi bi-x"></i></button>
+            </div>
+            <form onsubmit="recordPayment(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Select Student *</label>
+                    <select id="pay-student-select" required class="w-full px-3 py-2 text-xs border rounded-lg focus:outline-none">
+                        <!-- Filled by JS -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Payment Amount ($) *</label>
+                    <input id="pay-amount" type="number" min="1" required class="w-full px-3 py-2 text-xs border rounded-lg focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Payment Method</label>
+                        <select id="pay-method" class="w-full px-3 py-2 text-xs border rounded-lg focus:outline-none">
+                            <option value="Online Stripe">Online Credit Card</option>
+                            <option value="Cash">Cash (Offline)</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Receipt Ref Code</label>
+                        <input id="pay-ref" type="text" placeholder="REC-449" class="w-full px-3 py-2 text-xs border rounded-lg focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-4">
+                    <button type="button" onclick="closeModal('quickPaymentModal')" class="px-4 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-lg">Cancel</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg">Process Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- MODAL: PRINT PREVIEW RECEIPT -->
+    <div id="receiptModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <!-- Header buttons -->
+            <div class="flex items-center justify-between px-6 py-4 border-b bg-slate-50 no-print">
+                <h3 class="font-bold text-slate-800 text-sm">Invoice Receipt Preview</h3>
+                <div class="flex items-center gap-2">
+                    <button onclick="window.print()" class="px-3 py-1 bg-petrol-500 text-white hover:bg-petrol-650 rounded text-xs font-bold"><i class="bi bi-printer"></i> Print</button>
+                    <button onclick="closeModal('receiptModal')" class="p-1 rounded-full text-slate-400 hover:bg-slate-200"><i class="text-xl bi bi-x"></i></button>
+                </div>
+            </div>
+
+            <!-- Print Content -->
+            <div id="receipt-print-content" class="p-8 space-y-6 overflow-y-auto text-xs text-slate-700 bg-white leading-relaxed">
+                <!-- Dynamically filled with receipt details -->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- TOAST POPUP NOTIFICATION -->
+    <div id="toastNotification" class="fixed bottom-5 right-5 z-80 hidden flex items-center gap-3 px-4 py-3 text-sm text-white bg-slate-900 rounded-xl shadow-lg transition-transform duration-300">
+        <i id="toast-icon" class="text-emerald-400 bi bi-check-circle-fill"></i>
+        <span id="toast-msg">Database snapshot saved successfully!</span>
+    </div>
+
+
+    <!-- JS ENGINE SCRIPT -->
+    <script>
+        // CORE STATE DATABASE (Simulation)
+        let students = [
+            { id: 1, name: "Liam Carter", parentName: "Donald Carter", phone: "+1 (555) 234-9011", instrument: "Piano", batch: "Monday Evening Batch", plan: "Monthly Standard", planPrice: 60, dues: 0, joiningDate: "2024-01-10", status: "Paid", teacher: "Sarah Jenkins", performance: "Excellent progression inside classical scales", attendance: true },
+            { id: 2, name: "Zara Lin", parentName: "Xavier Lin", phone: "+1 (555) 789-3211", instrument: "Guitar", batch: "Saturday Morning Batch", plan: "Quarterly Premium", planPrice: 160, dues: 60, joiningDate: "2023-11-05", status: "Pending", teacher: "Marcus Finch", performance: "Struggling somewhat with standard G-Chord transitions", attendance: false },
+            { id: 3, name: "Aditya Roy", parentName: "Preeti Roy", phone: "+1 (555) 432-8711", instrument: "Drums", batch: "Monday Evening Batch", plan: "Monthly Standard", planPrice: 60, dues: 0, joiningDate: "2024-02-01", status: "Paid", teacher: "Amara Okafor", performance: "Excellent dynamic speed adjustments during session logs", attendance: true },
+            { id: 4, name: "Sophia Martinez", parentName: "Elena Martinez", phone: "+1 (555) 901-4467", instrument: "Vocal", batch: "Wednesday Noon Batch", plan: "Yearly Platinum", planPrice: 600, dues: 200, joiningDate: "2023-08-15", status: "Pending", teacher: "Emma Watson", performance: "Tremendous high ranges, working on breathing constraints", attendance: true },
+            { id: 5, name: "Jameson Miller", parentName: "Clara Miller", phone: "+1 (555) 543-1289", instrument: "Violin", batch: "Saturday Morning Batch", plan: "Monthly Standard", planPrice: 60, dues: 0, joiningDate: "2024-03-01", status: "Paid", teacher: "Sarah Jenkins", performance: "Perfect bow handling. Intonation is improving rapidly.", attendance: true }
+        ];
+
+        let teachers = [
+            { id: 1, name: "Sarah Jenkins", instrument: "Piano / Violin", image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=256&auto=format&fit=crop", count: 2 },
+            { id: 2, name: "Marcus Finch", instrument: "Guitar / Bass", image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=256&auto=format&fit=crop", count: 1 },
+            { id: 3, name: "Emma Watson", instrument: "Vocal Studio", image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=256&auto=format&fit=crop", count: 1 },
+            { id: 4, name: "Amara Okafor", instrument: "Percussions & Drums", image: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=256&auto=format&fit=crop", count: 1 }
+        ];
+
+        let revenueChart = null;
+
+        // On Document Load
+        window.onload = function() {
+            setDemoDate();
+            initDashboard();
+        };
+
+        function setDemoDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('attendance-date').value = today;
+            document.getElementById('stud-joining').value = today;
+        }
+
+        // Active Navigation switcher Helper
+        function switchTab(tabId) {
+            const tabs = ['dashboard', 'students', 'fees', 'attendance', 'teachers', 'reports'];
+            tabs.forEach(t => {
+                const el = document.getElementById('view-' + t);
+                const navBtn = document.getElementById('nav-' + t);
+                
+                if (el) {
+                    if (t === tabId) {
+                        el.classList.remove('hidden');
+                        if (navBtn) {
+                            navBtn.classList.remove('text-slate-400');
+                            navBtn.classList.add('text-white', 'bg-slate-800');
+                        }
+                    } else {
+                        el.classList.add('hidden');
+                        if (navBtn) {
+                            navBtn.classList.remove('text-white', 'bg-slate-800');
+                            navBtn.classList.add('text-slate-400');
+                        }
+                    }
+                }
+            });
+
+            // Set Header Dynamic Titles
+            const titleMap = {
+                'dashboard': 'Dashboard Metrics',
+                'students': 'Students Directory Tracker',
+                'fees': 'Fees Billing Ledger',
+                'attendance': 'Academy Logbook',
+                'teachers': 'Instructors Scheduling',
+                'reports': 'Financial & Outstanding Audits'
+            };
+            document.getElementById('page-title').textContent = titleMap[tabId];
+
+            // Specific View Trigger Loaders
+            if (tabId === 'dashboard') {
+                initDashboard();
+            } else if (tabId === 'students') {
+                renderStudents();
+            } else if (tabId === 'fees') {
+                renderFeesLedger();
+                fillPaymentStudentDropdown();
+            } else if (tabId === 'attendance') {
+                renderAttendanceTracker();
+            } else if (tabId === 'teachers') {
+                renderTeachers();
+            } else if (tabId === 'reports') {
+                renderReports();
+            }
+        }
+
+        // Dashboard load & initialization
+        function initDashboard() {
+            const totalEst = students.length;
+            const outstandingSum = students.reduce((sum, s) => sum + s.dues, 0);
+            
+            // Calculate total flat payments processed
+            let collectionSum = students.reduce((sum, s) => {
+                const calculatedPaid = s.planPrice - s.dues;
+                return sum + (calculatedPaid > 0 ? calculatedPaid : 0);
+            }, 0);
+            
+            // Render basic stat elements
+            document.getElementById('stat-total-students').textContent = totalEst;
+            document.getElementById('stat-fees-collected').textContent = '$' + collectionSum;
+            document.getElementById('stat-pending-fees').textContent = '$' + outstandingSum;
+            document.getElementById('stat-monthly-revenue').textContent = '$' + (collectionSum + outstandingSum);
+
+            // Upcoming Critical Dues sidebar render
+            const dueListSidebarDiv = document.getElementById('upcoming-dues-list');
+            dueListSidebarDiv.innerHTML = '';
+            
+            const pendingStudents = students.filter(s => s.dues > 0);
+            if (pendingStudents.length === 0) {
+                dueListSidebarDiv.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Hooray! No pending billing issues.</p>`;
+            } else {
+                pendingStudents.forEach(s => {
+                    dueListSidebarDiv.innerHTML += `
+                        <div class="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+                            <div>
+                                <h5 class="font-bold text-xs text-slate-700">${s.name}</h5>
+                                <p class="text-[10px] text-slate-400">${s.instrument} Class (${s.plan})</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="block text-xs font-bold text-rose-600">$${s.dues} Due</span>
+                                <button onclick="sendReminder(${s.id})" class="text-[10px] text-petrol-600 font-semibold hover:underline">Notify via SMS</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Instrument percentages breakdown rendering
+            const distributionsContainer = document.getElementById('course-distribution');
+            distributionsContainer.innerHTML = '';
+            
+            // Hardcoded distribution metrics matching data mockup
+            const instruments = ["Guitar", "Piano", "Drums", "Vocal", "Violin"];
+            const colors = ["bg-amber-400", "bg-purple-400", "bg-rose-400", "bg-teal-400", "bg-emerald-400"];
+            
+            instruments.forEach((inst, idx) => {
+                const count = students.filter(s => s.instrument === inst).length;
+                const pct = totalEst > 0 ? Math.round((count / totalEst) * 100) : 0;
+                const totalCourseRev = students.filter(s => s.instrument === inst).reduce((sum, s) => sum + s.planPrice, 0);
+
+                distributionsContainer.innerHTML += `
+                    <div>
+                        <div class="flex items-center justify-between text-xs mb-1">
+                            <span class="font-bold text-slate-700">${inst} Lessons (${count})</span>
+                            <span class="text-slate-500 font-semibold">$${totalCourseRev} Total Billable (${pct}%)</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full ${colors[idx]}" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Initialize/Update Charts
+            initCharts(collectionSum, outstandingSum);
+        }
+
+        function initCharts(collected, pending) {
+            const ctx = document.getElementById('revenueChart');
+            if (!ctx) return;
+
+            if (revenueChart) {
+                revenueChart.destroy();
+            }
+
+            // High Fidelity Multi collection simulation dataset config
+            revenueChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan - Feb', 'Feb - Mar', 'Mar - Apr'],
+                    datasets: [
+                        {
+                            label: 'Collected Fees ($)',
+                            data: [collected - 80, collected - 20, collected],
+                            backgroundColor: '#3B7A99',
+                            borderRadius: 6,
+                        },
+                        {
+                            label: 'Outstanding Owed ($)',
+                            data: [pending + 120, pending + 40, pending],
+                            backgroundColor: '#cbd5e1',
+                            borderRadius: 6,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    family: 'Plus Jakarta Sans',
+                                    size: 11
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: {
+                                color: '#f1f5f9'
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Plus Jakarta Sans',
+                                    size: 10
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Plus Jakarta Sans',
+                                    size: 10
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Students view renderer
+        function renderStudents() {
+            const tableBody = document.getElementById('students-table-body');
+            tableBody.innerHTML = '';
+            
+            students.forEach(s => {
+                const statusBadge = s.status === 'Paid' 
+                    ? '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Fully Paid</span>'
+                    : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Owes $${s.dues} </span>`;
+
+                tableBody.innerHTML += `
+                    <tr class="hover:bg-slate-50/50 transition">
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-slate-800 text-xs">${s.name}</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5">Parent: ${s.parentName} | Mob: ${s.phone}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-xs font-semibold text-slate-700">${s.instrument} Class</div>
+                            <div class="text-[10px] text-indigo-500 font-medium">${s.teacher}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-xs text-slate-600">${s.batch}</div>
+                        </td>
+                        <td class="px-6 py-4 text-xs font-medium text-slate-500">
+                            ${s.joiningDate}
+                        </td>
+                        <td class="px-6 py-4">
+                            ${statusBadge}
+                        </td>
+                        <td class="px-4 py-4 text-xs text-right whitespace-nowrap">
+                            <button onclick="editPerformanceNote(${s.id})" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded mr-1" title="Teacher Progress notes"><i class="bi bi-journal-text"></i> Notes</button>
+                            <button onclick="deleteStudent(${s.id})" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded" title="Deregister Student"><i class="bi bi-trash3"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Filter functionality for students search and selections
+        function filterStudents() {
+            const searchVal = document.getElementById('student-search-input').value.toLowerCase();
+            const instVal = document.getElementById('student-filter-instrument').value;
+            const statusVal = document.getElementById('student-filter-status').value;
+
+            const tableBody = document.getElementById('students-table-body');
+            tableBody.innerHTML = '';
+
+            students.forEach(s => {
+                const matchSearch = s.name.toLowerCase().includes(searchVal) || s.phone.includes(searchVal) || s.parentName.toLowerCase().includes(searchVal);
+                const matchInst = instVal === 'all' || s.instrument === instVal;
+                const matchStatus = statusVal === 'all' || s.status === statusVal;
+
+                if (matchSearch && matchInst && matchStatus) {
+                    const statusBadge = s.status === 'Paid' 
+                        ? '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Fully Paid</span>'
+                        : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Owes $${s.dues} </span>`;
+
+                    tableBody.innerHTML += `
+                        <tr class="hover:bg-slate-50/50 transition">
+                            <td class="px-6 py-4">
+                                <div class="font-bold text-slate-800 text-xs">${s.name}</div>
+                                <div class="text-[10px] text-slate-400 mt-0.5">Parent: ${s.parentName} | Mob: ${s.phone}</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-xs font-semibold text-slate-700">${s.instrument} Class</div>
+                                <div class="text-[10px] text-indigo-500">${s.teacher}</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-xs text-slate-600">${s.batch}</div>
+                            </td>
+                            <td class="px-6 py-4 text-xs font-medium text-slate-500">
+                                ${s.joiningDate}
+                            </td>
+                            <td class="px-6 py-4">
+                                ${statusBadge}
+                            </td>
+                            <td class="px-4 py-4 text-xs text-right whitespace-nowrap">
+                                <button onclick="editPerformanceNote(${s.id})" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded mr-1"><i class="bi bi-journal-text"></i> Notes</button>
+                                <button onclick="deleteStudent(${s.id})" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded"><i class="bi bi-trash3"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+        }
+
+        // Automatic plan selector pricing helper within form modal
+        function autoLoadPlanPrice() {
+            const dropdown = document.getElementById('stud-plan');
+            const selectedOpt = dropdown.options[dropdown.selectedIndex];
+            const price = selectedOpt.getAttribute('data-price');
+            document.getElementById('stud-initial-payment').value = price;
+        }
+
+        // Add registered student record implementation
+        function addStudent(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('stud-name').value;
+            const parent = document.getElementById('stud-parent').value;
+            const phone = document.getElementById('stud-phone').value;
+            const joining = document.getElementById('stud-joining').value;
+            const instrument = document.getElementById('stud-instrument').value;
+            const batch = document.getElementById('stud-batch').value;
+            const teacher = document.getElementById('stud-teacher').value;
+            const plan = document.getElementById('stud-plan').value;
+            
+            // Dynamic Pricing Computations and Dues Calculation
+            const planDrpdwn = document.getElementById('stud-plan');
+            const opt = planDrpdwn.options[planDrpdwn.selectedIndex];
+            const planPrice = parseFloat(opt.getAttribute('data-price'));
+            
+            const initialPayment = parseFloat(document.getElementById('stud-initial-payment').value) || 0;
+            const computedDues = planPrice > initialPayment ? (planPrice - initialPayment) : 0;
+            const initialStatus = computedDues === 0 ? "Paid" : "Pending";
+
+            // Push entry to our local simulated collection database
+            const nextId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
+            students.push({
+                id: nextId,
+                name: name,
+                parentName: parent || "N/A",
+                phone: phone,
+                instrument: instrument,
+                batch: batch,
+                plan: plan,
+                planPrice: planPrice,
+                dues: computedDues,
+                joiningDate: joining,
+                status: initialStatus,
+                teacher: teacher,
+                performance: "Formally initialized lesson curriculums, no session reports typed yet.",
+                attendance: true
+            });
+
+            showToast("Successfully enrolled: " + name + " into " + instrument + " classes!");
+            closeModal('addStudentModal');
+            
+            // Clean/Reset Forms
+            document.getElementById('stud-name').value = '';
+            document.getElementById('stud-parent').value = '';
+            document.getElementById('stud-phone').value = '';
+
+            // Redirect automatically to Students list tab
+            switchTab('students');
+        }
+
+        // Delete Registered Student
+        function deleteStudent(id) {
+            if(confirm("Are you sure you want to completely deregister and wipe student record " + id + "?")) {
+                students = students.filter(s => s.id !== id);
+                showToast("Cleared student enrollment record successfully");
+                renderStudents();
+            }
+        }
+
+        // Show invoice printable receipt function modal
+        function triggerReceiptModal(studentId) {
+            const student = students.find(s => s.id === studentId);
+            if (!student) return;
+
+            const printArea = document.getElementById('receipt-print-content');
+            const receiptNo = "REC-2" + student.id + "0" + Math.floor(Math.random() * 90 + 10);
+            const amtPaid = student.planPrice - student.dues;
+
+            printArea.innerHTML = `
+                <div class="text-center pb-6 border-b border-dashed border-slate-200">
+                    <h2 class="text-base font-bold uppercase tracking-wider text-slate-800">Harmony Music Academy</h2>
+                    <p class="text-[10px] text-slate-400">Downtown Campus Block • Phoenix Blvd, AZ</p>
+                    <p class="text-[10px] text-slate-400">Tel: +1 (555) 019-2810 • harmony@academy.admin</p>
+                </div>
+
+                <div class="flex justify-between py-2 text-[11px]">
+                    <div>
+                        <p class="font-bold text-slate-600">INVOICE TO:</p>
+                        <p class="text-slate-800 text-xs font-bold mt-0.5">${student.name}</p>
+                        <p class="text-[10px] text-slate-400">Parent: ${student.parentName}</p>
+                        <p class="text-[10px] text-slate-400">Tel: ${student.phone}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-slate-600 font-mono">Invoice: ${receiptNo}</p>
+                        <p class="text-[10px] text-slate-500">Date Issued: ${new Date().toLocaleDateString()}</p>
+                        <p class="text-[10px] text-slate-500">Status: <span class="font-bold text-emerald-600">${student.status.toUpperCase()}</span></p>
+                    </div>
+                </div>
+
+                <div class="border-t border-b py-3 font-semibold text-slate-500 flex justify-between bg-slate-50 px-2 mt-4">
+                    <span>Course Description / Music Plan</span>
+                    <span>Class Amount</span>
+                </div>
+
+                <div class="py-4 space-y-2 px-2">
+                    <div class="flex justify-between font-bold text-slate-700">
+                        <span>${student.instrument} Studio Lessons - ${student.plan} Setup</span>
+                        <span>$${student.planPrice}.00</span>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-slate-400">
+                        <span>Assigned Class Teacher: ${student.teacher}</span>
+                        <span>Term Frequency: ${student.plan.split(' ')[0]}</span>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-200 pt-4 space-y-1 text-right max-w-xs ml-auto">
+                    <div class="flex justify-between text-slate-400">
+                        <span>Subtotal Plan Cost:</span>
+                        <span>$${student.planPrice}.00</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-slate-800">
+                        <span>Total Paid Offline/Card:</span>
+                        <span class="text-emerald-700">$${amtPaid}.00</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-rose-600 border-t pt-1">
+                        <span>Outstanding Duely Owed:</span>
+                        <span>$${student.dues}.00</span>
+                    </div>
+                </div>
+
+                <div class="text-center pt-8 border-t border-dashed border-slate-200 text-[10px] text-slate-400">
+                    <p class="font-semibold text-slate-600">Thank you for tutoring with Harmony!</p>
+                    <p>All fee payments must be settled within grace timelines. Generative automatic late schedules apply.</p>
+                </div>
+            `;
+
+            openModal('receiptModal');
+        }
+
+        // Render billing and payments ledger view
+        function renderFeesLedger() {
+            const tableBody = document.getElementById('fees-ledger-body');
+            tableBody.innerHTML = '';
+
+            students.forEach(s => {
+                const statusBadge = s.status === 'Paid' 
+                    ? '<span class="px-2 py-0.5 rounded font-bold bg-emerald-50 text-emerald-700">Processed</span>'
+                    : `<span class="px-2 py-0.5 rounded font-bold bg-rose-50 text-rose-700">Due</span>`;
+
+                // Simulating simulated late fee calculation algorithm: +$10 fee if and only if dues over $0
+                const computedLateFees = s.dues > 0 ? "$10.00" : "$0.00";
+
+                tableBody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="px-5 py-3 font-bold text-xs text-slate-700">${s.name}</td>
+                        <td class="px-5 py-3">${s.plan} ($${s.planPrice})</td>
+                        <td class="px-5 py-3 text-rose-600 font-bold">$${s.dues}</td>
+                        <td class="px-5 py-3 text-slate-400 font-medium">${computedLateFees}</td>
+                        <td class="px-5 py-3 font-mono text-slate-500">05 / Next Mo</td>
+                        <td class="px-5 py-3 text-right space-x-1 whitespace-nowrap">
+                            <button onclick="triggerReceiptModal(${s.id})" class="text-[11px] font-bold py-1 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded"><i class="bi bi-file-earmark-pdf"></i> Receipt</button>
+                            <button onclick="sendReminder(${s.id})" class="text-[11px] font-bold py-1 px-2.5 bg-petrol-50 hover:bg-petrol-100 text-petrol-700 rounded border border-petrol-200 inline-flex items-center gap-0.5"><i class="bi bi-whatsapp"></i> Notify</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Fill dynamic recording modal select students options dropdown
+        function fillPaymentStudentDropdown() {
+            const drop = document.getElementById('pay-student-select');
+            drop.innerHTML = '';
+            students.forEach(s => {
+                drop.innerHTML += `<option value="${s.id}">${s.name} (Outstanding: $${s.dues})</option>`;
+            });
+        }
+
+        // Payment recorder process implementation
+        function recordPayment(event) {
+            event.preventDefault();
+
+            const studId = parseInt(document.getElementById('pay-student-select').value);
+            const amtPaid = parseFloat(document.getElementById('pay-amount').value);
+            const paymentMethodStr = document.getElementById('pay-method').value;
+
+            const student = students.find(s => s.id === studId);
+            if(student) {
+                // Deduct from outstanding balance state
+                const actualDues = student.dues - amtPaid;
+                student.dues = actualDues > 0 ? actualDues : 0;
+                student.status = student.dues === 0 ? "Paid" : "Pending";
+
+                showToast(`Received $${amtPaid} from ${student.name} via ${paymentMethodStr}!`);
+                closeModal('quickPaymentModal');
+
+                // Refresh fee ledger view
+                renderFeesLedger();
+            }
+        }
+
+        // Send Custom simulated alert message WhatsApp
+        function sendReminder(studentId) {
+            const student = students.find(s => s.id === studentId);
+            if (!student) return;
+
+            showToast(`🚀 WhatsApp / SMS dispatched to ${student.parentName} targeting ${student.name}'s outstanding due of $${student.dues}!`);
+        }
+
+        // Simulate WhatsApp messaging campaign blast
+        function triggerAllReminders() {
+            const pendingList = students.filter(s => s.dues > 0);
+            if(pendingList.length === 0) {
+                alert("Brilliant! All system accounts cleared. No outstanding dues found.");
+                return;
+            }
+
+            alert(`Processing and delivering bulk WhatsApp notices to ${pendingList.length} parents regarding critical class payments. Complete!`);
+            showToast("Bulk billing notification push finished!");
+        }
+
+        // Attendance View Renderer per Batch selected
+        function renderAttendanceTracker() {
+            const batchFilter = document.getElementById('attendance-batch-select').value;
+            const tableBody = document.getElementById('attendance-table-body');
+            tableBody.innerHTML = '';
+
+            // Filter students belonging to designated batch schedule
+            const matchingStudents = students.filter(s => s.batch === batchFilter);
+
+            if(matchingStudents.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="px-5 py-8 text-center text-xs text-slate-400 font-medium">No students registered in this batch. Feel free to register or select saturday Morning!</td></tr>`;
+                return;
+            }
+
+            matchingStudents.forEach(s => {
+                const checkState = s.attendance ? "checked" : "";
+                
+                tableBody.innerHTML += `
+                    <tr class="hover:bg-slate-50/50">
+                        <td class="px-5 py-3">
+                            <div class="font-bold text-xs text-slate-800">${s.name}</div>
+                            <div class="text-[10px] text-slate-400">${s.instrument} Lessons</div>
+                        </td>
+                        <td class="px-5 py-3 text-xs font-semibold">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="att-box-${s.id}" ${checkState} class="sr-only peer">
+                                <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                                <span class="ml-2 text-[10px] text-slate-400 font-bold peer-checked:text-emerald-600">Present</span>
+                            </label>
+                        </td>
+                        <td class="px-5 py-3">
+                            <select id="perf-rate-${s.id}" class="text-[10px] px-2 py-1 border rounded bg-slate-50 border-slate-200 font-bold text-slate-600">
+                                <option value="⭐️ Excellent">⭐ Brilliant Sessions</option>
+                                <option value="📈 Improving" selected>📈 Progressing Steadily</option>
+                                <option value="⚠️ Needs Practice">⚠️ Lacks Routine Practice</option>
+                            </select>
+                        </td>
+                        <td class="px-5 py-3">
+                            <input id="note-text-${s.id}" type="text" value="${s.performance}" class="w-full px-2 py-1.5 text-[11px] border border-slate-100 rounded bg-white text-slate-600 focus:ring-1 focus:ring-petrol-300 focus:outline-none">
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Mark All present/absent bulk toggle helper
+        function markAllAttendance(isPresent) {
+            const batchFilter = document.getElementById('attendance-batch-select').value;
+            const matchingStudents = students.filter(s => s.batch === batchFilter);
+
+            matchingStudents.forEach(s => {
+                const chkBox = document.getElementById(`att-box-${s.id}`);
+                if(chkBox) {
+                    chkBox.checked = isPresent;
+                }
+            });
+        }
+
+        // Commit and save classroom attendance & written performance comments
+        function saveAttendanceData() {
+            const batchFilter = document.getElementById('attendance-batch-select').value;
+            const matchingStudents = students.filter(s => s.batch === batchFilter);
+
+            matchingStudents.forEach(s => {
+                const chkBox = document.getElementById(`att-box-${s.id}`);
+                const perfRateDropdown = document.getElementById(`perf-rate-${s.id}`);
+                const noteInput = document.getElementById(`note-text-${s.id}`);
+
+                if (chkBox) {
+                    s.attendance = chkBox.checked;
+                    s.performance = noteInput.value;
+                    // Also append the star rating label dynamically
+                    if (perfRateDropdown) {
+                        s.performance = `[Rating: ${perfRateDropdown.value}] ` + s.performance;
+                    }
+                }
+            });
+
+            showToast("Successfully logged class register results & metrics!");
+        }
+
+        // View Teachers block loop renderer
+        function renderTeachers() {
+            const container = document.getElementById('teachers-list-container');
+            container.innerHTML = '';
+
+            teachers.forEach(t => {
+                // Determine instrument background pills
+                let instrumentBadgeColor = "bg-petrol-50 text-petrol-700";
+                if(t.instrument.includes("Vocal")) instrumentBadgeColor = "bg-teal-50 text-teal-700";
+                if(t.instrument.includes("Guitar")) instrumentBadgeColor = "bg-amber-50 text-amber-700";
+
+                container.innerHTML += `
+                    <div class="p-5 border bg-white rounded-2xl border-slate-150 flex flex-col items-center text-center shadow-sm">
+                        <img src="${t.image}" class="w-16 h-16 rounded-full object-cover shadow-inner ring-4 ring-slate-100" />
+                        <h4 class="font-bold text-xs text-slate-800 mt-3">${t.name}</h4>
+                        <span class="inline-block px-2.5 py-0.5 mt-1 rounded text-[10px] font-bold ${instrumentBadgeColor}">${t.instrument}</span>
+                        
+                        <div class="w-full grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-100 text-[10px]">
+                            <div>
+                                <p class="text-slate-400 font-semibold">Active Classes</p>
+                                <p class="font-bold text-slate-800 mt-0.5">3 standard hrs</p>
+                            </div>
+                            <div>
+                                <p class="text-slate-400 font-semibold">Student Log</p>
+                                <p class="font-bold text-slate-800 mt-0.5">${students.filter(s => s.teacher === t.name).length} Enrollments</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 flex gap-2 w-full">
+                            <button onclick="alert('Viewing teacher specific class slots scheduling modal')" class="w-1/2 py-1.5 border hover:bg-slate-50 transition text-[10px] font-bold text-slate-600 rounded">View Schedule</button>
+                            <button onclick="alert('Instructor slot assignment changed')" class="w-1/2 py-1.5 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded transition">Edit Mastery</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Render detailed financial outstanding and course revenue report analysis
+        function renderReports() {
+            // Active total dues receivable value summary
+            const receivablesSum = students.reduce((sum, s) => sum + s.dues, 0);
+            document.getElementById('report-active-receivables').textContent = "$" + receivablesSum + ".00";
+
+            // List of students map containing just outstanding debts
+            const outstandingTableBody = document.getElementById('report-outstanding-body');
+            outstandingTableBody.innerHTML = '';
+            const latePayers = students.filter(s => s.dues > 0);
+
+            if(latePayers.length === 0) {
+                outstandingTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 font-semibold text-slate-400">Excellent! All accounts cleared!</td></tr>';
+            } else {
+                latePayers.forEach(s => {
+                    outstandingTableBody.innerHTML += `
+                        <tr class="hover:bg-slate-50">
+                            <td class="py-2.5 font-bold">${s.name}</td>
+                            <td class="py-2.5 text-slate-400">${s.phone}</td>
+                            <td class="py-2.5 font-semibold text-rose-500">12 Days Over</td>
+                            <td class="py-2.5 text-right font-bold text-rose-600">$${s.dues}.00</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Fill course wise details
+            const occupancyDiv = document.getElementById('report-course-occupancy');
+            occupancyDiv.innerHTML = '';
+
+            const courses = ["Guitar", "Piano", "Drums", "Vocal", "Violin"];
+            const courseColorMap = ["bg-amber-500", "bg-purple-500", "bg-rose-500", "bg-teal-500", "bg-emerald-500"];
+
+            courses.forEach((c, idx) => {
+                const subS = students.filter(s => s.instrument === c);
+                const subTotalRevenueCollected = subS.reduce((sum, s) => sum + (s.planPrice - s.dues), 0);
+                const percentOfTotal = students.length > 0 ? (subS.length / students.length) * 100 : 0;
+
+                occupancyDiv.innerHTML += `
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-600">
+                            <span>🎸 ${c} (Active: ${subS.length} students)</span>
+                            <span>$${subTotalRevenueCollected}.00 Net Cash</span>
+                        </div>
+                        <div class="w-full h-1.5 bg-slate-50 rounded mt-1 overflow-hidden">
+                            <div class="h-full ${courseColorMap[idx]}" style="width: ${percentOfTotal}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Inline modal controllers
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        // Multi-branch selector simulation trigger
+        function switchBranch() {
+            const select = document.getElementById('branch-select');
+            const val = select.options[select.selectedIndex].text;
+            showToast("System shifted directory data context to: " + val);
+            initDashboard();
+        }
+
+        // Role-switcher system visual adjustments simulation
+        function switchRole() {
+            const select = document.getElementById('role-select');
+            const role = select.value;
+            showToast(`Initiating visual context changes for role: [${role}]`);
+        }
+
+        // Sidebar responsive mobile layout view helpers
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('mobile-sidebar');
+            const overlay = document.getElementById('mobile-sidebar-overlay');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // Simple toast message layout engine trigger helper
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            const msg = document.getElementById('toast-msg');
+            msg.textContent = message;
+            
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3500);
+        }
+
+        // Edit Performance / Progress teacher notes action helper
+        function editPerformanceNote(studentId) {
+            const student = students.find(s => s.id === studentId);
+            if (!student) return;
+
+            const existingNote = student.performance || "";
+            const userInput = prompt(`Update weekly progress note details & chord reports for ${student.name}:`, existingNote);
+
+            if(userInput !== null) {
+                student.performance = userInput;
+                showToast(`Accomplished writing progression log note updates for ${student.name}!`);
+                renderStudents();
+            }
+        }
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
